@@ -35,7 +35,7 @@ NUM_STARS = 100
 STAR_COLOUR = [WHITE, GOLD]
 
 ## Enemies
-NUM_ENEMIES = 5
+NUM_ENEMIES = 8
 sizeEnemy = [20, 20]
 enemyBulletW = 20
 enemyBulletH = 15
@@ -146,29 +146,46 @@ class enemyClass1(pygame.sprite.Sprite):
 
 class enemyClass2(pygame.sprite.Sprite):
         def __init__(self):
-            pygame.sprite.Sprite.__init__(self)     
-            self.image = pygame.Surface([80, 90])
-            self.image.fill(BLUE)
+            pygame.sprite.Sprite.__init__(self)   
+            self.colour = BLUE  
+            self.image = pygame.Surface([80, 70])
+            self.image.fill(self.colour)
             self.rect = self.image.get_rect()
             self.rect.centerx = WIDTH - 80
             self.rect.centery = HEIGHT/2
-            self.speedy = random.uniform(3, 10)
+            self.speedy = random.randint(4, 10)
             self.direction = 1
-            self.life = 40
+            self.life = 31
             self.dificult = dificult
-
+            self.flagDifficult = True
 
         def update(self, time):
+        	## Move
       		self.rect.centery += self.speedy * self.direction 
-
+      		## Change color if hit
+      		self.image.fill(self.colour)
+      		## Shot!
       		if self.rect.centery % self.dificult == 0:
       			self.shoot()
-
-      		##Update limit
+      		## Update dificult
+      		if self.life == 10 and self.flagDifficult == True :
+      			self.speedy += 1
+      			self.flagDifficult = False
+      		if self.life == 30 and self.flagDifficult == False :
+      			self.speedy += 1
+      			self.flagDifficult = True
+      		## Update position
       		if self.rect.bottom >= HEIGHT:
       			self.direction = -1
       		if self.rect.top <= 0:
       			self.direction = 1
+
+      		## change colour
+      		if self.life < 20:
+      			if self.colour == BLUE:
+      				self.colour = RED
+      			else:
+      				self.colour = BLUE
 
       	def shoot(self):
 		    bullet = BulletClass(enemyBulletW, enemyBulletH, self.rect.left, self.rect.y, -1, BLUE)
@@ -225,7 +242,6 @@ class engineClass(pygame.sprite.Sprite):
 # ---------------------------------------------------------------------
 # Funciones
 # ---------------------------------------------------------------------
- 
 def load_image(filename, transparent=False):
     try: image = pygame.image.load(filename)
     except pygame.error, message:
@@ -243,7 +259,7 @@ def crear_texto(texto, posx, posy, color=(255, 255, 255)):
     salida_rect.centerx = posx
     salida_rect.centery = posy
     return salida, salida_rect
- 
+
 #---------------------------------------------------------------------
  
 def main():
@@ -291,7 +307,8 @@ def main():
             if eventos.type == QUIT:
                 sys.exit(0)
             elif eventos.type == pygame.KEYDOWN:
-            	player.shoot()
+            	if eventos.key == pygame.K_SPACE:
+            		player.shoot()
             elif eventos.type == pygame.KEYUP:
                 if eventos.key == pygame.K_UP:
                 	player.engine(K_UP)
@@ -345,12 +362,14 @@ def main():
         hit = pygame.sprite.spritecollide(enemyBig, bullets, True)
         if hit:
             print 'Golpeaste con Enemigo Big: ' + str(enemyBig.life)
+
+           	## Update life and dificult of the enemyBig
+            score += 1
             enemyBig.life -= 1
-            enemyBig.dificult -= 2 
+            enemyBig.dificult -= 1 
 
             if enemyBig.life == 0:
         		running = False
-
 
         # 3. DRAW
 
