@@ -12,7 +12,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255) 
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-MARTIS = (255, 0, 60)  
+MARTIS = (255, 192, 203)
 GOLD = (255, 215, 0)
 SKY_BLUE = (135,206,235)
 MIDNIGHT_BLUE =	(25,25,112)
@@ -92,7 +92,7 @@ class redPixelClass(pygame.sprite.Sprite):
             self.rect.centerx -= 0.5
         ## No puede salir izquierda
         if self.rect.left <= 0: 
-            self.rect.centerx += 40     
+            self.rect.centerx += 60     
 
     def shoot(self):
         bullet = BulletClass(playerBulletW, playerBulletH, self.rect.right, self.rect.y, self.direction_shot, self.colour)
@@ -288,6 +288,8 @@ def main():
     ## Init time
     start = datetime.datetime.now()
     text, text_rect = crear_texto('Red Pixel, Blue Pixel has stolen your girlfriend!', WIDTH/2, HEIGHT/2)
+    textRed, textRed_rect = crear_texto('You, RED PIXEL', 140,HEIGHT/2 - 140, color = RED)
+    textBlue, textBlue_rect = crear_texto('BLUE PIXEL', WIDTH - 120,HEIGHT/2 - 140, color = BLUE)
 
     speedx = 0
   
@@ -299,6 +301,8 @@ def main():
         stars.update(time)
         ## Text
         screen.blit(text, text_rect)
+        screen.blit(textRed, textRed_rect)
+        screen.blit(textBlue, textBlue_rect)
         ## Sprites                
         stars.draw(screen)    
         ## draw RedPixel
@@ -390,7 +394,36 @@ def main():
         ## Update all changes
         pygame.display.flip()
 
-    
+    endFlag = True
+
+    if (enemyBig.life == 0):
+    	text_end = "You save your girlfriend!"
+    else:
+   		text_end = "You've lost your girlfriend!"
+
+    ## Init time
+    start = datetime.datetime.now()
+    text1, text_rect1 = crear_texto('Your score was: ' + str(score), WIDTH/2, HEIGHT/2)
+    text2, text_rect2 = crear_texto(text_end, WIDTH/2, HEIGHT/2 + 50)
+    ## Intro Loop
+    while(endFlag):
+        time = clock.tick(60)
+        ## Background
+        screen.blit(background_image, (0, 0))    
+        stars.update(time)
+        ## Text1
+        screen.blit(text1, text_rect1)
+        ## Text2
+        screen.blit(text2, text_rect2)
+        ## Sprites                
+        stars.draw(screen)    
+        ## Update all changes
+        pygame.display.flip()  
+        ## End time
+        stop = datetime.datetime.now()
+
+        if stop - start >  datetime.timedelta(seconds=10):
+            endFlag = False
 
     return 0
  
