@@ -5,7 +5,7 @@
 import sys, pygame
 from pygame.locals import *
 import random
-import math
+import datetime
  
 ## Colores
 BLACK = (0, 0, 0) 
@@ -35,7 +35,7 @@ NUM_STARS = 100
 STAR_COLOUR = [WHITE, GOLD]
 
 ## Enemies
-NUM_ENEMIES = 8
+NUM_ENEMIES = 12
 sizeEnemy = [20, 20]
 enemyBulletW = 20
 enemyBulletH = 15
@@ -50,25 +50,23 @@ enemies = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 bulletsEnemy = pygame.sprite.Group()
 engines = pygame.sprite.Group()
-
+stars = pygame.sprite.Group()
 
 # ---------------------------------------------------------------------
 # Clases
 # ---------------------------------------------------------------------
-class spaceshipClass(pygame.sprite.Sprite):
+class redPixelClass(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)     
-
         self.image = pygame.Surface([20, 15])
         self.image.fill(RED)
         self.rect = self.image.get_rect()
-        self.rect.centerx = 30
-        self.rect.centery = HEIGHT / 2
+        self.rect.centerx = 20
+        self.rect.centery = HEIGHT/2 - 120
         self.speedx = speedK
         self.speedy = speedK
         self.colour = RED
         self.direction_shot = 1
-
     def update(self, time):
         ## Force drags you to the left
         self.drag_force()
@@ -88,7 +86,6 @@ class spaceshipClass(pygame.sprite.Sprite):
         if self.rect.right <= WIDTH:
             if keys[K_RIGHT]:
                 self.rect.centerx += self.speedx
-
     def drag_force(self):
         ## Fuerza te arrastra hacia atras
         if self.rect.right <= (WIDTH):
@@ -96,13 +93,11 @@ class spaceshipClass(pygame.sprite.Sprite):
         ## No puede salir izquierda
         if self.rect.left <= 0: 
             self.rect.centerx += 40     
-            print "drag force"
 
     def shoot(self):
         bullet = BulletClass(playerBulletW, playerBulletH, self.rect.right, self.rect.y, self.direction_shot, self.colour)
         all_sprites.add(bullet)
         bullets.add(bullet)
-
     def engine(self, direction):
         engine = engineClass(self.rect.left, self.rect.bottom, MARTIS)
         engine.direction = direction 
@@ -118,7 +113,6 @@ class starsClass(pygame.sprite.Sprite):
             self.rect.centerx = WIDTH
             self.rect.centery = HEIGHT / 2
             self.speedx = 0.5
-
         def update(self, time):
             self.rect.centerx -= self.speedx * time   ## Variable with time
             ## Collision PARED
@@ -127,7 +121,7 @@ class starsClass(pygame.sprite.Sprite):
                 self.rect.centerx = WIDTH + 10 
                 self.rect.centery = random.randint(0, HEIGHT)
 
-class enemyClass1(pygame.sprite.Sprite):
+class enemyPixelClass(pygame.sprite.Sprite):
         def __init__(self, h, w, colour):
             pygame.sprite.Sprite.__init__(self)             
             self.image = pygame.Surface([w, h])
@@ -136,7 +130,6 @@ class enemyClass1(pygame.sprite.Sprite):
             self.rect.centerx = WIDTH/2
             self.rect.centery = HEIGHT/2
             self.speedx = random.uniform(0.5, 7)
-
         def update(self, time):
             self.rect.centerx -= self.speedx
             ## Collision PARED
@@ -144,21 +137,20 @@ class enemyClass1(pygame.sprite.Sprite):
                 self.rect.centerx = random.randrange(WIDTH, WIDTH + 100)
                 self.rect.centery = random.randrange(0 + sizeEnemy[1], HEIGHT - self.rect.height, random.randint(1,self.rect.height))
 
-class enemyClass2(pygame.sprite.Sprite):
+class bluePixelClass(pygame.sprite.Sprite):
         def __init__(self):
             pygame.sprite.Sprite.__init__(self)   
             self.colour = BLUE  
             self.image = pygame.Surface([80, 70])
             self.image.fill(self.colour)
             self.rect = self.image.get_rect()
-            self.rect.centerx = WIDTH - 80
+            self.rect.centerx = WIDTH - 90
             self.rect.centery = HEIGHT/2
             self.speedy = random.randint(4, 10)
             self.direction = 1
             self.life = 31
             self.dificult = dificult
             self.flagDifficult = True
-
         def update(self, time):
         	## Move
       		self.rect.centery += self.speedy * self.direction 
@@ -179,14 +171,12 @@ class enemyClass2(pygame.sprite.Sprite):
       			self.direction = -1
       		if self.rect.top <= 0:
       			self.direction = 1
-
       		## change colour
       		if self.life < 20:
       			if self.colour == BLUE:
       				self.colour = RED
       			else:
       				self.colour = BLUE
-
       	def shoot(self):
 		    bullet = BulletClass(enemyBulletW, enemyBulletH, self.rect.left, self.rect.y, -1, BLUE)
 		    all_sprites.add(bullet)
@@ -202,13 +192,11 @@ class BulletClass(pygame.sprite.Sprite):
             self.rect.centery = y
             self.speedx = 10
             self.direction = direction
-
         def update(self, time):
             self.rect.x += self.speedx * self.direction
             #kill if it moves off the top of the screen
             if self.rect.left > WIDTH:
                 self.kill()
-
 class engineClass(pygame.sprite.Sprite):
         def __init__(self,x,y, colour):
             pygame.sprite.Sprite.__init__(self)             
@@ -221,7 +209,6 @@ class engineClass(pygame.sprite.Sprite):
             self.speedy = 5
             self.direction = 0
             self.points = 20
-
         def update(self, time):
             if self.direction == K_RIGHT:
                 self.rect.x -= self.speedx
@@ -231,13 +218,11 @@ class engineClass(pygame.sprite.Sprite):
                 self.rect.y += self.speedy
             if self.direction == K_DOWN:
                 self.rect.y -= self.speedy
-            # 
+            ## Update number of print points
             self.points -= 1 
             #kill if it moves off the top of the screen
             if self.points == 0:
-                self.kill()
-
-                
+                self.kill()   
 
 # ---------------------------------------------------------------------
 # Funciones
@@ -272,10 +257,10 @@ def main():
     background_image = pygame.Surface(screen.get_size())
     background_image.fill(BLACK)
     ## Call spaceship and add to sprites group
-    player = spaceshipClass()
+    player = redPixelClass()
     all_sprites.add(player)
     ## Call "big" Enemy
-    enemyBig = enemyClass2()
+    enemyBig = bluePixelClass()
     all_sprites.add(enemyBig)
 
     ## Call stars
@@ -285,10 +270,11 @@ def main():
         star.rect.centerx = WIDTH
         star.speedx = 0.1 * random.uniform(0.1, 10)
         all_sprites.add(star)
+        stars.add(star)
 
     ## Call enemies
     for n in range(NUM_ENEMIES):
-	    enemy = enemyClass1(sizeEnemy[0], sizeEnemy[1], GREEN)
+	    enemy = enemyPixelClass(sizeEnemy[0], sizeEnemy[1], GREEN)
 	    enemy.rect.centery = random.uniform(sizeEnemy[1], HEIGHT - sizeEnemy[1] )
 	    enemy.rect.centerx = random.uniform(WIDTH - 2 * sizeEnemy[0], WIDTH + 200) 
 	    enemy.speedx = 0.9 * random.uniform(0.1, 10)
@@ -298,10 +284,42 @@ def main():
     ## Clock
     clock = pygame.time.Clock()
 
-    ## Main Loop
-    running = True
+    initFlag = True
+    ## Init time
+    start = datetime.datetime.now()
+    text, text_rect = crear_texto('Red Pixel, Blue Pixel has stolen your girlfriend!', WIDTH/2, HEIGHT/2)
 
-    while running:
+    speedx = 0
+  
+    ## Intro Loop
+    while(initFlag):
+        time = clock.tick(60)
+        ## Background
+        screen.blit(background_image, (0, 0))    
+        stars.update(time)
+        ## Text
+        screen.blit(text, text_rect)
+        ## Sprites                
+        stars.draw(screen)    
+        ## draw RedPixel
+        pygame.draw.rect(screen,RED, (20,HEIGHT/2 - 120,20,15),0 )
+        ## draw Blue Pixel
+        pygame.draw.rect(screen,BLUE, (WIDTH - 90,HEIGHT/2 - 120,80,70),0 )
+        ## draw Intro Pixel
+        pygame.draw.rect(screen,MARTIS, (20,HEIGHT/2 + 20,speedx,15),0 )
+        ## Update all changes
+        pygame.display.flip()  
+        ## End time
+        stop = datetime.datetime.now()
+        ## Move intro Pixel
+        speedx += 1
+        if stop - start >  datetime.timedelta(seconds=10):
+            initFlag = False
+
+    ## Main Loop
+    runningFlag = True
+
+    while runningFlag:
         time = clock.tick(60)
         for eventos in pygame.event.get():
             if eventos.type == QUIT:
@@ -320,17 +338,14 @@ def main():
                		player.engine(K_RIGHT)
 
         # 1. UPDATE POSITIONS
-
         all_sprites.update(time)
         text, text_rect = crear_texto('Score: ' + str(score), WIDTH-WIDTH/4, 40)       
 
         # 2. DETECT HITS
-
         ## 2.1 BulletPlayer - Enemy
         hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
         for hit in hits:
-            print 'Alcanzaste al enemigo small'
-            enemy = enemyClass1(sizeEnemy[0], sizeEnemy[1], GREEN)
+            enemy = enemyPixelClass(sizeEnemy[0], sizeEnemy[1], GREEN)
             enemy.rect.centery = random.uniform(sizeEnemy[1], HEIGHT - sizeEnemy[1] )
             enemy.rect.centerx = random.uniform(WIDTH - 2 * sizeEnemy[0], WIDTH + 200) 
             enemy.speedx += 2
@@ -341,47 +356,41 @@ def main():
         ## 2.2 Player - Enemy
         hit = pygame.sprite.spritecollide(player, enemies, True)
      	if hit:
-     	    print 'Chocaste con nave small'
-            running = False
+            runningFlag = False
 
          ## 2.3 Player - EnemyBig
         hit = pygame.sprite.collide_rect(player, enemyBig)
         if hit:
-            print 'Chocaste con Enemigo Big: ' + str(enemyBig.life)
             if enemyBig.life == 0:
-        		running = False
-
+        		runningFlag = False
 
        	## 2.4 Player - bulletEnemy
         hit = pygame.sprite.spritecollide(player, bulletsEnemy, True)
         if hit:
-        	print 'Balas enemigas te alcanzaron'
-        	running = False
+        	runningFlag = False
 
         ## 2.4 EnemyBig - bulletPlayer
         hit = pygame.sprite.spritecollide(enemyBig, bullets, True)
         if hit:
-            print 'Golpeaste con Enemigo Big: ' + str(enemyBig.life)
-
            	## Update life and dificult of the enemyBig
             score += 1
             enemyBig.life -= 1
             enemyBig.dificult -= 1 
 
             if enemyBig.life == 0:
-        		running = False
+        		runningFlag = False
 
-        # 3. DRAW
-
+        # 3. DRAW and UPDATE
         ## Background
         screen.blit(background_image, (0, 0))    
         ## Text
         screen.blit(text, text_rect)
         ## Sprites                
         all_sprites.draw(screen)                     
-
         ## Update all changes
         pygame.display.flip()
+
+    
 
     return 0
  
