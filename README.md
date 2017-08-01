@@ -1,2 +1,7 @@
 # pySpaceshipGame
-spaceship game make it with pygame
+
+SpaceshipPixel game!
+
+Created with pygame and python
+
+Mencho@2017
