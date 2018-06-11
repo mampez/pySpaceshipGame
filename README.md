@@ -1,7 +1,8 @@
 # pySpaceshipGame
 
-SpaceshipPixel game!
+A demo pygame game!
 
-Created with pygame and python
+## Detail info
 
-Mencho@2017
+@_manuelmenchaca 2017
+
