@@ -1,6 +1,6 @@
 # pySpaceshipGame
 
-A demo pygame game!
+Spaceship game made using Python (pygame library). 
 
 ## Detail info
 
